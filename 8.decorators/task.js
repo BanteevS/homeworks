@@ -7,56 +7,48 @@ function cachingDecoratorNew(func) {
     if (idx !== -1) {
       console.log("Из кэша: " + cache[idx].value);
       return "Из кэша: " + cache[idx].value;
-    } else {
-      let result = func(...args);
-      cache.push({ hash: hash, value: result });
-      if (cache.length > 5) {
-        cache.shift(0);
-      }
-      console.log("Вычисляем: " + result);
-      return "Вычисляем: " + result;
+    } 
+    let result = func(...args);
+    cache.push({ hash: hash, value: result });
+    if (cache.length > 5) {
+      cache.shift();
     }
+    console.log("Вычисляем: " + result);
+    return "Вычисляем: " + result;
   }
   return wrapper;
 }
 
 function debounceDecoratorNew(func, ms) {
-  let flag = false;
-  //let count = 0;
+  let flag = false;  
   let timeout;
-  return function (...args) {
-    //count++;
-    if (flag) {
-      //console.log("Вызов номер " + count + " проигнорирован");
-      clearTimeout(timeout);
-      timeout = setTimeout(() => (flag = false), ms);
-      return;
-    } else {
+  return function (...args) {       
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {      
+      flag = false;
+    }, ms);
+    if (!flag) {
       func.apply(this, args);
-      flag = true;
-      //console.log("Вызван на попытке номер " + count);
-      clearTimeout(timeout);
-      timeout = setTimeout(() => (flag = false), ms);
+      flag = true;      
     }
   };
 }
 
-function debounceDecorator2(func) {
-  let flag = false;
-  let count = 0;
-  let timeout;
-  return function (...args) {
-    count++;
-    console.log("Вызов номер - " + count);
-    if (flag) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => (flag = false), ms);
-      return;
-    } else {
+function debounceDecorator2(func, ms) {
+  let flag = false;  
+  let timeout;   
+  function wrapper (...args) {     
+    wrapper.count++;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {      
+      flag = false;
+    }, ms);
+    if (!flag) {
       func.apply(this, args);
-      flag = true;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => (flag = false), ms);
+      flag = true;      
     }
+    console.log(wrapper.count);
   };
+  wrapper.count = 0;
+  return wrapper;
 }
